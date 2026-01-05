@@ -106,7 +106,7 @@ app.get("/api/info", async (req, res) => {
 });
 
 /**
- * Get video info using yt-dlp
+ * Get video info using yt-dlp with complete metadata
  */
 function getInfoWithYtdlp(url) {
   return new Promise((resolve, reject) => {
@@ -161,6 +161,15 @@ function getInfoWithYtdlp(url) {
           }
         }
 
+        // Extract year from upload date or release year
+        let year = null;
+        if (info.release_year) {
+          year = String(info.release_year);
+        } else if (info.upload_date) {
+          year = info.upload_date.substring(0, 4);
+        }
+
+        // Build result with complete metadata
         const result = {
           title: info.title || "Unknown Title",
           channel: info.uploader || info.channel || "Unknown Channel",
@@ -169,12 +178,24 @@ function getInfoWithYtdlp(url) {
           videoId: info.id,
           audioBitrate: audioBitrate,
           estimatedFileSize: estimatedFileSize,
+          // Enhanced metadata
+          artist: info.artist || info.creator || info.uploader || null,
+          album: info.album || null,
+          track: info.track || info.title || null,
+          genre: info.genre || null,
+          year: year,
+          tags: info.tags ? info.tags.slice(0, 5) : [],
         };
+
         console.log(
-          `[INFO] Video info fetched: ${result.title} (${
-            audioBitrate || "best"
-          }kbps, ${estimatedFileSize})`
+          `[INFO] Video: "${result.title}" by ${
+            result.artist || result.channel
+          }`
         );
+        if (result.album) console.log(`[INFO] Album: ${result.album}`);
+        if (result.year) console.log(`[INFO] Year: ${result.year}`);
+        if (result.genre) console.log(`[INFO] Genre: ${result.genre}`);
+
         resolve(result);
       } catch (e) {
         reject(new Error("Failed to parse video info"));
@@ -220,7 +241,7 @@ app.get("/api/download", async (req, res) => {
       `${timestamp}_%(title)s.%(ext)s`
     );
 
-    // yt-dlp arguments for highest quality with album art
+    // yt-dlp arguments for highest quality with complete metadata
     const args = [
       "-x", // Extract audio
       "--audio-format",
@@ -228,7 +249,17 @@ app.get("/api/download", async (req, res) => {
       "--audio-quality",
       "0", // Best quality (0 = best)
       "--embed-thumbnail", // Embed thumbnail as album art
-      "--add-metadata", // Add metadata
+      "--embed-metadata", // Embed all available metadata
+      "--parse-metadata",
+      "%(artist,uploader,channel)s:%(meta_artist)s", // Set artist from video info
+      "--parse-metadata",
+      "%(album,title)s:%(meta_album)s", // Set album
+      "--parse-metadata",
+      "%(track,title)s:%(meta_title)s", // Set track title
+      "--parse-metadata",
+      "%(release_year,upload_date>%Y)s:%(meta_date)s", // Set year
+      "--convert-thumbnails",
+      "jpg", // Convert thumbnail to jpg for better MP3 compatibility
       "--ffmpeg-location",
       path.dirname(FFMPEG_PATH),
       "-o",

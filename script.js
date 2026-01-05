@@ -316,6 +316,49 @@ function showPreview(info) {
     filesizeEl.textContent = "-- MB";
   }
 
+  // Display metadata
+  const metadataContainer = document.getElementById("preview-metadata");
+
+  // Artist
+  const artistRow = document.getElementById("metadata-artist");
+  if (info.artist && info.artist !== info.channel) {
+    document.getElementById("meta-artist").textContent = info.artist;
+    artistRow.style.display = "flex";
+  } else {
+    artistRow.style.display = "none";
+  }
+
+  // Album
+  const albumRow = document.getElementById("metadata-album");
+  if (info.album) {
+    document.getElementById("meta-album").textContent = info.album;
+    albumRow.style.display = "flex";
+  } else {
+    albumRow.style.display = "none";
+  }
+
+  // Year
+  const yearRow = document.getElementById("metadata-year");
+  if (info.year) {
+    document.getElementById("meta-year").textContent = info.year;
+    yearRow.style.display = "flex";
+  } else {
+    yearRow.style.display = "none";
+  }
+
+  // Genre
+  const genreRow = document.getElementById("metadata-genre");
+  if (info.genre) {
+    document.getElementById("meta-genre").textContent = info.genre;
+    genreRow.style.display = "flex";
+  } else {
+    genreRow.style.display = "none";
+  }
+
+  // Show/hide metadata container based on whether any metadata exists
+  const hasMetadata = info.artist || info.album || info.year || info.genre;
+  metadataContainer.style.display = hasMetadata ? "grid" : "none";
+
   videoPreview.classList.remove("hidden");
 }
 
