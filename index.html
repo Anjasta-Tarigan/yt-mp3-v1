@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Convert YouTube videos to high-quality MP3 audio files. Fast, free, and easy to use."
+    />
+    <title>YT2MP3 - YouTube to MP3 Converter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Animated Background -->
+    <div class="bg-gradient"></div>
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </div>
+          <span class="logo-text">YT<span class="accent">2</span>MP3</span>
+        </div>
+        <nav class="nav">
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#how-it-works" class="nav-link">How It Works</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <h1 class="hero-title">
+              Convert YouTube to
+              <span class="gradient-text">High-Quality MP3</span>
+            </h1>
+            <p class="hero-subtitle">
+              Transform any YouTube video into crystal-clear audio. Fast, free,
+              and always downloads the highest quality available.
+            </p>
+
+            <!-- Converter Card -->
+            <div class="converter-card">
+              <div class="input-wrapper">
+                <div class="input-icon">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                    ></path>
+                    <path
+                      d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                    ></path>
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  id="youtube-url"
+                  class="url-input"
+                  placeholder="Paste YouTube URL here..."
+                  autocomplete="off"
+                />
+                <button
+                  id="btn-paste"
+                  class="btn-paste"
+                  title="Paste from clipboard"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect
+                      x="9"
+                      y="9"
+                      width="13"
+                      height="13"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                    <path
+                      d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+
+              <button id="btn-convert" class="btn-convert">
+                <span class="btn-text">Convert to MP3</span>
+                <div class="btn-loader">
+                  <div class="spinner"></div>
+                </div>
+                <svg
+                  class="btn-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </button>
+
+              <!-- Error Message -->
+              <div id="error-message" class="error-message hidden">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span id="error-text"></span>
+              </div>
+            </div>
+
+            <!-- Video Preview -->
+            <div id="video-preview" class="video-preview hidden">
+              <div class="preview-content">
+                <div class="preview-thumbnail">
+                  <img id="preview-image" src="" alt="Video thumbnail" />
+                  <div class="preview-duration" id="preview-duration">0:00</div>
+                </div>
+                <div class="preview-info">
+                  <h3 id="preview-title" class="preview-title">Video Title</h3>
+                  <p id="preview-channel" class="preview-channel">
+                    Channel Name
+                  </p>
+                  <div class="preview-meta">
+                    <span class="meta-item">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      <span id="preview-length">0:00</span>
+                    </span>
+                    <span class="meta-item">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                      </svg>
+                      <span id="preview-quality">--</span>
+                    </span>
+                    <span class="meta-item">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                        ></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                      <span id="preview-filesize">-- MB</span>
+                    </span>
+                  </div>
+                  <div class="preview-badges">
+                    <span class="badge badge-quality">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <polygon
+                          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                        ></polygon>
+                      </svg>
+                      Highest Quality
+                    </span>
+                    <span class="badge badge-format">MP3</span>
+                    <span class="badge badge-art" id="badge-albumart">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <rect
+                          x="3"
+                          y="3"
+                          width="18"
+                          height="18"
+                          rx="2"
+                          ry="2"
+                        ></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                      </svg>
+                      Album Art
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="preview-actions">
+                <button id="btn-download" class="btn-download">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Download MP3
+                </button>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div id="progress-container" class="progress-container hidden">
+              <div class="progress-header">
+                <span class="progress-label">Converting...</span>
+                <span id="progress-percent" class="progress-percent">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+              </div>
+              <p class="progress-status" id="progress-status">
+                Preparing download...
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section id="features" class="features">
+        <div class="container">
+          <h2 class="section-title">
+            Why Choose <span class="gradient-text">YT2MP3</span>?
+          </h2>
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polygon
+                    points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+                  ></polygon>
+                </svg>
+              </div>
+              <h3 class="feature-title">Lightning Fast</h3>
+              <p class="feature-desc">
+                Convert videos to MP3 in seconds with our optimized processing
+                engine.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"
+                  ></path>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                  <line x1="12" y1="19" x2="12" y2="23"></line>
+                  <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+              </div>
+              <h3 class="feature-title">High Quality Audio</h3>
+              <p class="feature-desc">
+                Support for up to 320kbps bitrate for crystal-clear sound
+                quality.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect
+                    x="3"
+                    y="11"
+                    width="18"
+                    height="11"
+                    rx="2"
+                    ry="2"
+                  ></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+              <h3 class="feature-title">Safe & Secure</h3>
+              <p class="feature-desc">
+                No account required. Your downloads are private and secure.
+              </p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                  <path
+                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="feature-title">Works Everywhere</h3>
+              <p class="feature-desc">
+                Compatible with all devices - desktop, tablet, and mobile.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works -->
+      <section id="how-it-works" class="how-it-works">
+        <div class="container">
+          <h2 class="section-title">
+            How It <span class="gradient-text">Works</span>
+          </h2>
+          <div class="steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <h3 class="step-title">Paste URL</h3>
+              <p class="step-desc">
+                Copy the YouTube video URL and paste it in the input field
+                above.
+              </p>
+            </div>
+            <div class="step-connector">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <h3 class="step-title">Choose Quality</h3>
+              <p class="step-desc">
+                Select your preferred audio quality from 128kbps to 320kbps.
+              </p>
+            </div>
+            <div class="step-connector">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <h3 class="step-title">Download</h3>
+              <p class="step-desc">
+                Click convert and download your MP3 file instantly.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <div class="logo">
+              <div class="logo-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+              </div>
+              <span class="logo-text">YT<span class="accent">2</span>MP3</span>
+            </div>
+            <p class="footer-tagline">
+              Convert YouTube videos to MP3 with ease.
+            </p>
+          </div>
+          <div class="footer-links">
+            <p class="footer-disclaimer">
+              This tool is intended for personal use only. Please respect
+              copyright laws.
+            </p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 YT2MP3. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
