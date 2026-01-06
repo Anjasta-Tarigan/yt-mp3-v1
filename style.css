@@ -1408,9 +1408,41 @@ body {
   border-top: 1px solid var(--border-color);
 }
 
+.footer-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
 .footer-bottom p {
   color: var(--text-muted);
   font-size: 0.9rem;
+  margin: 0;
+}
+
+.orcid-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #a6ce39; /* ORCID green */
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.orcid-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.orcid-icon {
+  width: 18px;
+  height: 18px;
 }
 
 /* ========================================
