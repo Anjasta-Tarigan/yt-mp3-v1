@@ -3,19 +3,74 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Convert YouTube videos to high-quality MP3 audio files. Fast, free, and easy to use."
-    />
-    <title>YT2MP3 - YouTube to MP3 Converter</title>
+    
+    <!-- Primary SEO Meta Tags -->
+    <title>YT2MP3 - Free YouTube to MP3 Converter | High Quality Audio Download</title>
+    <meta name="title" content="YT2MP3 - Free YouTube to MP3 Converter | High Quality Audio Download" />
+    <meta name="description" content="Convert YouTube videos to high-quality MP3 audio files for free. Features include audio preview, custom trimming, album art embedding, and metadata preservation. Fast, secure, and no registration required." />
+    <meta name="keywords" content="youtube to mp3, youtube converter, mp3 converter, youtube mp3 download, audio converter, free mp3 download, youtube audio, music download, audio extractor" />
+    <meta name="author" content="YT2MP3" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yt2mp3.app/" />
+    <meta property="og:title" content="YT2MP3 - Free YouTube to MP3 Converter" />
+    <meta property="og:description" content="Convert YouTube videos to high-quality MP3 audio files. Audio preview, custom trimming, album art, and more!" />
+    <meta property="og:image" content="assets/images/brand.png" />
+    <meta property="og:site_name" content="YT2MP3" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://yt2mp3.app/" />
+    <meta property="twitter:title" content="YT2MP3 - Free YouTube to MP3 Converter" />
+    <meta property="twitter:description" content="Convert YouTube videos to high-quality MP3 audio files. Audio preview, custom trimming, album art, and more!" />
+    <meta property="twitter:image" content="assets/images/brand.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/brand.png" />
+    <link rel="apple-touch-icon" href="assets/images/brand.png" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://yt2mp3.app/" />
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css" />
+    
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "YT2MP3",
+      "description": "Convert YouTube videos to high-quality MP3 audio files",
+      "url": "https://yt2mp3.app/",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "High-quality MP3 conversion",
+        "Audio preview before download",
+        "Custom audio trimming",
+        "Album art embedding",
+        "Metadata preservation"
+      ]
+    }
+    </script>
   </head>
   <body>
     <!-- Animated Background -->
@@ -26,16 +81,7 @@
     <header class="header">
       <div class="container">
         <div class="logo">
-          <div class="logo-icon">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-          </div>
+          <img src="assets/images/brand.png" alt="YT2MP3 Logo" class="logo-img" />
           <span class="logo-text">YT<span class="accent">2</span>MP3</span>
         </div>
         <nav class="nav">
@@ -56,7 +102,7 @@
             </h1>
             <p class="hero-subtitle">
               Transform any YouTube video into crystal-clear audio. Fast, free,
-              and always downloads the highest quality available.
+              and always downloads the highest quality if available.
             </p>
 
             <!-- Converter Card -->
@@ -267,24 +313,142 @@
                         <polyline points="21 15 16 10 5 21"></polyline>
                       </svg>
                       Album Art
-                    </span>
+                  </div>
+                </div>
+              </div>
+              <!-- Manual Trim Option -->
+              <div class="trim-option-container">
+                <div class="trim-header">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="trim-toggle" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <div class="toggle-label">
+                    <span class="toggle-title">✂️ Trim Audio</span>
+                    <span class="toggle-desc">Remove intro/outro by specifying start & end time</span>
+                  </div>
+                </div>
+                <div class="trim-inputs hidden" id="trim-inputs">
+                  <div class="trim-input-group">
+                    <label for="trim-start">Start Time</label>
+                    <input type="text" id="trim-start" placeholder="0:00" />
+                    <span class="trim-hint">e.g., 0:15 or 1:30</span>
+                  </div>
+                  <div class="trim-input-group">
+                    <label for="trim-end">End Time</label>
+                    <input type="text" id="trim-end" placeholder="--:--" />
+                    <span class="trim-hint">Leave empty for end</span>
+                  </div>
+                  <div class="trim-duration" id="trim-duration-display">
+                    Duration: <span id="trimmed-duration">--:--</span>
                   </div>
                 </div>
               </div>
               <div class="preview-actions">
-                <button id="btn-download" class="btn-download">
+                <button id="btn-convert-start" class="btn-download">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  Convert to MP3
+                </button>
+              </div>
+            </div>
+
+            <!-- Audio Player Preview -->
+            <div id="audio-preview" class="audio-preview hidden">
+              <div class="audio-player-header">
+                <div class="audio-player-thumbnail">
+                  <img id="player-thumbnail" src="" alt="Album art" />
+                </div>
+                <div class="audio-player-info">
+                  <h3 id="player-title" class="player-title">Song Title</h3>
+                  <p id="player-artist" class="player-artist">Artist</p>
+                </div>
+              </div>
+
+              <div class="audio-player-controls">
+                <audio id="audio-element" controls></audio>
+              </div>
+
+              <div id="trim-info" class="trim-info hidden">
+                <div class="trim-badge">
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
                   >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                    <circle cx="6" cy="6" r="3"></circle>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
+                    <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
+                    <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
                   </svg>
-                  Download MP3
-                </button>
+                  <span>Segments removed:</span>
+                </div>
+                <ul id="trim-segments" class="trim-segments"></ul>
+              </div>
+
+              <div class="audio-player-actions">
+                <div class="version-toggle" id="version-toggle">
+                  <button
+                    class="version-btn active"
+                    data-version="trimmed"
+                    id="btn-version-trimmed"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="6" cy="6" r="3"></circle>
+                      <circle cx="6" cy="18" r="3"></circle>
+                      <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
+                    </svg>
+                    Trimmed
+                  </button>
+                  <button
+                    class="version-btn"
+                    data-version="full"
+                    id="btn-version-full"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <rect
+                        x="3"
+                        y="3"
+                        width="18"
+                        height="18"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                    </svg>
+                    Full Version
+                  </button>
+                </div>
+
+                <div class="download-actions">
+                  <button id="btn-download-selected" class="btn-download-main">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                      ></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download MP3
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -395,59 +559,6 @@
               <h3 class="feature-title">Works Everywhere</h3>
               <p class="feature-desc">
                 Compatible with all devices - desktop, tablet, and mobile.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- How It Works -->
-      <section id="how-it-works" class="how-it-works">
-        <div class="container">
-          <h2 class="section-title">
-            How It <span class="gradient-text">Works</span>
-          </h2>
-          <div class="steps">
-            <div class="step">
-              <div class="step-number">1</div>
-              <h3 class="step-title">Paste URL</h3>
-              <p class="step-desc">
-                Copy the YouTube video URL and paste it in the input field
-                above.
-              </p>
-            </div>
-            <div class="step-connector">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </div>
-            <div class="step">
-              <div class="step-number">2</div>
-              <h3 class="step-title">Choose Quality</h3>
-              <p class="step-desc">
-                Select your preferred audio quality from 128kbps to 320kbps.
-              </p>
-            </div>
-            <div class="step-connector">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </div>
-            <div class="step">
-              <div class="step-number">3</div>
-              <h3 class="step-title">Download</h3>
-              <p class="step-desc">
-                Click convert and download your MP3 file instantly.
               </p>
             </div>
           </div>

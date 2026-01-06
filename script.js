@@ -15,10 +15,27 @@ const progressContainer = document.getElementById("progress-container");
 const progressFill = document.getElementById("progress-fill");
 const progressPercent = document.getElementById("progress-percent");
 const progressStatus = document.getElementById("progress-status");
-const btnDownload = document.getElementById("btn-download");
+
+// New elements
+const btnConvertStart = document.getElementById("btn-convert-start");
+const trimToggle = document.getElementById("trim-toggle");
+const trimInputs = document.getElementById("trim-inputs");
+const trimStartInput = document.getElementById("trim-start");
+const trimEndInput = document.getElementById("trim-end");
+const trimmedDurationDisplay = document.getElementById("trimmed-duration");
+const audioPreview = document.getElementById("audio-preview");
+const audioElement = document.getElementById("audio-element");
+const btnVersionTrimmed = document.getElementById("btn-version-trimmed");
+const btnVersionFull = document.getElementById("btn-version-full");
+const btnDownloadSelected = document.getElementById("btn-download-selected");
+const trimInfo = document.getElementById("trim-info");
+const trimSegments = document.getElementById("trim-segments");
+const versionToggle = document.getElementById("version-toggle");
 
 // State
 let currentVideoInfo = null;
+let currentConvertedData = null;
+let selectedVersion = "trimmed";
 
 // ========================================
 // Initialization
@@ -29,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initEventListeners();
 });
 
-// Create floating particles with staggered animations
 function initParticles() {
   const container = document.getElementById("particles");
   const particleCount = 25;
@@ -39,23 +55,50 @@ function initParticles() {
     particle.className = "particle";
     particle.style.left = Math.random() * 100 + "%";
     particle.style.top = Math.random() * 100 + "%";
-    // Stagger animation delays for smoother overall effect
     particle.style.animationDelay = i * 0.8 + "s";
     particle.style.animationDuration = 20 + Math.random() * 10 + "s";
     container.appendChild(particle);
   }
 }
 
-// Initialize event listeners
 function initEventListeners() {
-  // Paste button
   btnPaste.addEventListener("click", handlePaste);
-
-  // Convert button
   btnConvert.addEventListener("click", handleConvert);
 
+  if (btnConvertStart) {
+    btnConvertStart.addEventListener("click", handleConvertStart);
+  }
+
+  // Trim toggle
+  if (trimToggle) {
+    trimToggle.addEventListener("change", () => {
+      if (trimInputs) {
+        trimInputs.classList.toggle("hidden", !trimToggle.checked);
+      }
+      updateTrimDuration();
+    });
+  }
+
+  // Trim input changes
+  if (trimStartInput) {
+    trimStartInput.addEventListener("input", updateTrimDuration);
+  }
+  if (trimEndInput) {
+    trimEndInput.addEventListener("input", updateTrimDuration);
+  }
+
+  // Version toggle buttons
+  if (btnVersionTrimmed) {
+    btnVersionTrimmed.addEventListener("click", () => selectVersion("trimmed"));
+  }
+  if (btnVersionFull) {
+    btnVersionFull.addEventListener("click", () => selectVersion("full"));
+  }
+
   // Download button
-  btnDownload.addEventListener("click", handleDownload);
+  if (btnDownloadSelected) {
+    btnDownloadSelected.addEventListener("click", handleDownload);
+  }
 
   // URL input - auto-detect paste
   urlInput.addEventListener("paste", () => {
@@ -66,7 +109,6 @@ function initEventListeners() {
     }, 100);
   });
 
-  // Enter key to convert
   urlInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       handleConvert();
@@ -84,7 +126,6 @@ async function handlePaste() {
     urlInput.value = text;
     urlInput.focus();
 
-    // Auto-convert if valid URL
     if (isValidYouTubeUrl(text)) {
       handleConvert();
     }
@@ -96,7 +137,6 @@ async function handlePaste() {
 async function handleConvert() {
   const url = urlInput.value.trim();
 
-  // Validate URL
   if (!url) {
     showError("Please enter a YouTube URL");
     return;
@@ -107,16 +147,14 @@ async function handleConvert() {
     return;
   }
 
-  // Hide previous results
   hideError();
   hidePreview();
   hideProgress();
+  hideAudioPreview();
 
-  // Show loading state
   setLoading(true);
 
   try {
-    // Fetch video info
     const response = await fetch(
       `${API_BASE}/info?url=${encodeURIComponent(url)}`
     );
@@ -128,6 +166,13 @@ async function handleConvert() {
 
     currentVideoInfo = data;
     showPreview(data);
+
+    // Reset trim inputs
+    if (trimStartInput) trimStartInput.value = "";
+    if (trimEndInput) trimEndInput.value = "";
+    if (trimToggle) trimToggle.checked = false;
+    if (trimInputs) trimInputs.classList.add("hidden");
+    updateTrimDuration();
   } catch (err) {
     showError(
       err.message ||
@@ -138,116 +183,190 @@ async function handleConvert() {
   }
 }
 
-async function handleDownload() {
+async function handleConvertStart() {
   if (!currentVideoInfo) return;
 
   hideError();
+  hidePreview();
   showProgress();
 
+  // Get trim settings
+  const isTrimEnabled = trimToggle && trimToggle.checked;
+  const trimStart =
+    isTrimEnabled && trimStartInput ? trimStartInput.value.trim() : null;
+  const trimEnd =
+    isTrimEnabled && trimEndInput ? trimEndInput.value.trim() : null;
+
   try {
-    // Start download
-    updateProgress(0, "Initializing download...");
+    updateProgress(0, "Starting conversion...");
 
     const url = urlInput.value.trim();
-    const downloadUrl = `${API_BASE}/download?url=${encodeURIComponent(url)}`;
 
-    // Simulate progress while downloading
     let progress = 0;
     const progressInterval = setInterval(() => {
-      if (progress < 90) {
-        progress += Math.random() * 12;
-        progress = Math.min(progress, 90);
-        updateProgress(progress, "Downloading highest quality audio...");
+      if (progress < 85) {
+        progress += Math.random() * 8;
+        progress = Math.min(progress, 85);
+        const status = isTrimEnabled
+          ? "Converting & trimming audio..."
+          : "Converting to MP3...";
+        updateProgress(progress, status);
       }
-    }, 600);
+    }, 800);
 
-    // Fetch the file
-    const response = await fetch(downloadUrl);
+    const response = await fetch(`${API_BASE}/convert`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url,
+        trimStart: trimStart || null,
+        trimEnd: trimEnd || null,
+      }),
+    });
 
     clearInterval(progressInterval);
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.error || "Download failed");
+      throw new Error(data.error || "Conversion failed");
     }
 
-    updateProgress(95, "Preparing download...");
+    updateProgress(100, "Conversion complete!");
 
-    // Get the blob
-    const blob = await response.blob();
+    currentConvertedData = data;
 
-    // Get filename from header or generate one
-    const contentDisposition = response.headers.get("Content-Disposition");
-    let filename = currentVideoInfo.title.replace(/[^\w\s-]/g, "") + ".mp3";
-
-    if (contentDisposition) {
-      const match = contentDisposition.match(
-        /filename\*?=(?:UTF-8'')?["']?([^"';\n]+)["']?/i
-      );
-      if (match && match[1]) {
-        filename = decodeURIComponent(match[1].replace(/['"]/g, ""));
-      }
-    }
-
-    updateProgress(100, "Download complete!");
-
-    // Trigger download
-    const objectUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = objectUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(objectUrl);
-
-    // Hide progress
-    hideProgress();
-
-    // Show success notification with SweetAlert2
-    const fileSizeMB = (blob.size / (1024 * 1024)).toFixed(2);
-
-    Swal.fire({
-      icon: "success",
-      title: "Download Complete!",
-      html: `
-                <div style="text-align: left; padding: 10px 0;">
-                    <p style="margin: 8px 0;"><strong>File:</strong> ${filename}</p>
-                    <p style="margin: 8px 0;"><strong>Size:</strong> ${fileSizeMB} MB</p>
-                    <p style="margin: 8px 0;"><strong>Quality:</strong> Highest Available</p>
-                </div>
-            `,
-      confirmButtonText: "Great!",
-      confirmButtonColor: "#7c3aed",
-      background: "#1a1a2e",
-      color: "#ffffff",
-      iconColor: "#10b981",
-      showClass: {
-        popup: "animate__animated animate__fadeInUp animate__faster",
-      },
-      hideClass: {
-        popup: "animate__animated animate__fadeOutDown animate__faster",
-      },
-    });
+    setTimeout(() => {
+      hideProgress();
+      showAudioPreview(data);
+    }, 500);
   } catch (err) {
     hideProgress();
-
-    // Show error notification with SweetAlert2
-    Swal.fire({
-      icon: "error",
-      title: "Download Failed",
-      text: err.message || "An error occurred. Please try again.",
-      confirmButtonText: "OK",
-      confirmButtonColor: "#ff3366",
-      background: "#1a1a2e",
-      color: "#ffffff",
-    });
+    showError(err.message || "Conversion failed. Please try again.");
   }
+}
+
+function selectVersion(version) {
+  selectedVersion = version;
+
+  btnVersionTrimmed.classList.toggle("active", version === "trimmed");
+  btnVersionFull.classList.toggle("active", version === "full");
+
+  if (currentConvertedData) {
+    const streamUrl = `${API_BASE}/stream/${currentConvertedData.fileId}?version=${version}`;
+    audioElement.src = streamUrl;
+    audioElement.load();
+  }
+}
+
+async function handleDownload() {
+  if (!currentConvertedData) return;
+
+  const downloadUrl = `${API_BASE}/download/${currentConvertedData.fileId}?version=${selectedVersion}`;
+
+  const a = document.createElement("a");
+  a.href = downloadUrl;
+  a.download = currentConvertedData.filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  const versionLabel = selectedVersion === "trimmed" ? "Trimmed" : "Full";
+  const size =
+    selectedVersion === "trimmed" && currentConvertedData.trimmedSize
+      ? (currentConvertedData.trimmedSize / (1024 * 1024)).toFixed(2)
+      : (currentConvertedData.fullSize / (1024 * 1024)).toFixed(2);
+
+  Swal.fire({
+    icon: "success",
+    title: "Download Started!",
+    html: `
+      <div style="text-align: left; padding: 10px 0;">
+        <p style="margin: 8px 0;"><strong>File:</strong> ${currentConvertedData.filename}</p>
+        <p style="margin: 8px 0;"><strong>Version:</strong> ${versionLabel}</p>
+        <p style="margin: 8px 0;"><strong>Size:</strong> ${size} MB</p>
+      </div>
+    `,
+    confirmButtonText: "Convert Another",
+    confirmButtonColor: "#7c3aed",
+    background: "#1a1a2e",
+    color: "#ffffff",
+    iconColor: "#10b981",
+  }).then(() => {
+    // Reset page after download
+    resetPage();
+  });
+}
+
+/**
+ * Reset the page to initial state
+ */
+function resetPage() {
+  // Clear state
+  currentVideoInfo = null;
+  currentConvertedData = null;
+  selectedVersion = "trimmed";
+
+  // Clear input
+  urlInput.value = "";
+
+  // Hide all sections
+  hideError();
+  hidePreview();
+  hideProgress();
+  hideAudioPreview();
+
+  // Reset trim inputs
+  if (trimToggle) trimToggle.checked = false;
+  if (trimInputs) trimInputs.classList.add("hidden");
+  if (trimStartInput) trimStartInput.value = "";
+  if (trimEndInput) trimEndInput.value = "";
+  if (trimmedDurationDisplay) trimmedDurationDisplay.textContent = "--:--";
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  console.log("[RESET] Page reset complete");
 }
 
 // ========================================
 // UI Helpers
 // ========================================
+
+function parseTimeToSeconds(timeStr) {
+  if (!timeStr) return null;
+
+  const parts = timeStr.toString().split(":").map(Number);
+
+  if (parts.some(isNaN)) return null;
+
+  if (parts.length === 1) {
+    return parts[0];
+  } else if (parts.length === 2) {
+    return parts[0] * 60 + parts[1];
+  } else if (parts.length === 3) {
+    return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  }
+  return null;
+}
+
+function updateTrimDuration() {
+  if (!currentVideoInfo || !trimmedDurationDisplay) return;
+
+  const startSeconds = parseTimeToSeconds(trimStartInput?.value) || 0;
+  const endSeconds =
+    parseTimeToSeconds(trimEndInput?.value) || currentVideoInfo.duration;
+
+  if (endSeconds > startSeconds && endSeconds <= currentVideoInfo.duration) {
+    const duration = endSeconds - startSeconds;
+    trimmedDurationDisplay.textContent = formatDuration(duration);
+  } else if (!trimEndInput?.value && startSeconds < currentVideoInfo.duration) {
+    const duration = currentVideoInfo.duration - startSeconds;
+    trimmedDurationDisplay.textContent = formatDuration(duration);
+  } else {
+    trimmedDurationDisplay.textContent = "--:--";
+  }
+}
 
 function isValidYouTubeUrl(url) {
   const patterns = [
@@ -292,7 +411,6 @@ function showPreview(info) {
     info.duration
   );
 
-  // Audio quality
   const qualityEl = document.getElementById("preview-quality");
   if (info.audioBitrate) {
     qualityEl.textContent = info.audioBitrate + " kbps";
@@ -300,18 +418,15 @@ function showPreview(info) {
     qualityEl.textContent = "Best Quality";
   }
 
-  // Estimated file size
   const filesizeEl = document.getElementById("preview-filesize");
   if (info.estimatedFileSize) {
     filesizeEl.textContent = info.estimatedFileSize;
   } else if (info.duration) {
-    // Estimate: ~1.8 MB per minute for high quality MP3
     const estimatedMB = (info.duration / 60) * 1.8;
-    if (estimatedMB < 1) {
-      filesizeEl.textContent = Math.round(estimatedMB * 1024) + " KB";
-    } else {
-      filesizeEl.textContent = "~" + estimatedMB.toFixed(1) + " MB";
-    }
+    filesizeEl.textContent =
+      estimatedMB < 1
+        ? Math.round(estimatedMB * 1024) + " KB"
+        : "~" + estimatedMB.toFixed(1) + " MB";
   } else {
     filesizeEl.textContent = "-- MB";
   }
@@ -319,7 +434,6 @@ function showPreview(info) {
   // Display metadata
   const metadataContainer = document.getElementById("preview-metadata");
 
-  // Artist
   const artistRow = document.getElementById("metadata-artist");
   if (info.artist && info.artist !== info.channel) {
     document.getElementById("meta-artist").textContent = info.artist;
@@ -328,7 +442,6 @@ function showPreview(info) {
     artistRow.style.display = "none";
   }
 
-  // Album
   const albumRow = document.getElementById("metadata-album");
   if (info.album) {
     document.getElementById("meta-album").textContent = info.album;
@@ -337,7 +450,6 @@ function showPreview(info) {
     albumRow.style.display = "none";
   }
 
-  // Year
   const yearRow = document.getElementById("metadata-year");
   if (info.year) {
     document.getElementById("meta-year").textContent = info.year;
@@ -346,7 +458,6 @@ function showPreview(info) {
     yearRow.style.display = "none";
   }
 
-  // Genre
   const genreRow = document.getElementById("metadata-genre");
   if (info.genre) {
     document.getElementById("meta-genre").textContent = info.genre;
@@ -355,7 +466,6 @@ function showPreview(info) {
     genreRow.style.display = "none";
   }
 
-  // Show/hide metadata container based on whether any metadata exists
   const hasMetadata = info.artist || info.album || info.year || info.genre;
   metadataContainer.style.display = hasMetadata ? "grid" : "none";
 
@@ -366,9 +476,48 @@ function hidePreview() {
   videoPreview.classList.add("hidden");
 }
 
+function showAudioPreview(data) {
+  document.getElementById("player-thumbnail").src = currentVideoInfo.thumbnail;
+  document.getElementById("player-title").textContent = data.title;
+  document.getElementById("player-artist").textContent =
+    currentVideoInfo.artist || currentVideoInfo.channel;
+
+  if (data.hasTrimmedVersion) {
+    selectedVersion = "trimmed";
+    audioElement.src = `${API_BASE}/stream/${data.fileId}?version=trimmed`;
+    versionToggle.style.display = "flex";
+    btnVersionTrimmed.classList.add("active");
+    btnVersionFull.classList.remove("active");
+
+    // Show trim info
+    if (data.trimInfo) {
+      trimInfo.classList.remove("hidden");
+      trimSegments.innerHTML = `
+        <li>Start: ${data.trimInfo.startFormatted}</li>
+        <li>End: ${data.trimInfo.endFormatted}</li>
+        <li>Duration: ${formatDuration(data.trimmedDuration)}</li>
+      `;
+    } else {
+      trimInfo.classList.add("hidden");
+    }
+  } else {
+    selectedVersion = "full";
+    audioElement.src = `${API_BASE}/stream/${data.fileId}?version=full`;
+    versionToggle.style.display = "none";
+    trimInfo.classList.add("hidden");
+  }
+
+  audioPreview.classList.remove("hidden");
+}
+
+function hideAudioPreview() {
+  audioPreview.classList.add("hidden");
+  audioElement.pause();
+  audioElement.src = "";
+}
+
 function showProgress() {
   progressContainer.classList.remove("hidden");
-  videoPreview.classList.add("hidden");
 }
 
 function hideProgress() {
