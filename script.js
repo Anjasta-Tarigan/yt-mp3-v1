@@ -2,7 +2,7 @@
 // YouTube to MP3 Converter - Frontend JS
 // ========================================
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "/api";
 
 // DOM Elements
 const urlInput = document.getElementById("youtube-url");

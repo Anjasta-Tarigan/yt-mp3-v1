@@ -5,10 +5,27 @@
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 
-const YTDLP_URL =
-  "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
-const OUTPUT_PATH = path.join(__dirname, "bin", "yt-dlp.exe");
+const platform = os.platform();
+let downloadUrl = "";
+let binaryName = "";
+
+if (platform === "win32") {
+  downloadUrl =
+    "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
+  binaryName = "yt-dlp.exe";
+} else if (platform === "darwin") {
+  downloadUrl =
+    "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos";
+  binaryName = "yt-dlp";
+} else {
+  downloadUrl =
+    "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp";
+  binaryName = "yt-dlp";
+}
+
+const OUTPUT_PATH = path.join(__dirname, "bin", binaryName);
 
 async function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
@@ -52,6 +69,19 @@ async function downloadFile(url, dest) {
           file.on("finish", () => {
             file.close();
             console.log("\nDownload complete!");
+
+            if (platform !== "win32") {
+              try {
+                fs.chmodSync(dest, 0o755);
+                console.log("Set executable permissions (chmod +x)");
+              } catch (err) {
+                console.warn(
+                  "Failed to set executable permissions:",
+                  err.message
+                );
+              }
+            }
+
             resolve();
           });
         })
@@ -65,7 +95,7 @@ async function downloadFile(url, dest) {
   });
 }
 
-downloadFile(YTDLP_URL, OUTPUT_PATH)
+downloadFile(downloadUrl, OUTPUT_PATH)
   .then(() => {
     console.log("yt-dlp is ready to use!");
   })
