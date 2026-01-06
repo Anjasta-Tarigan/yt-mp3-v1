@@ -1,8 +1,10 @@
 const path = require("path");
 const os = require("os");
 const fs = require("fs");
+require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || "production";
 
 // Determine platform-specific binary name
 const binaryName = process.platform === "win32" ? "yt-dlp.exe" : "yt-dlp";

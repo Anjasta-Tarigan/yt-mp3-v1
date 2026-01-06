@@ -190,6 +190,17 @@ async function handleConvertStart() {
   hidePreview();
   showProgress();
 
+  // Reset all terminal steps strictly
+  ["step-fetch", "step-download", "step-convert", "step-metadata"].forEach(
+    (id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove("active", "done");
+        el.classList.add("waiting");
+      }
+    }
+  );
+
   // Get trim settings
   const isTrimEnabled = trimToggle && trimToggle.checked;
   const trimStart =
@@ -203,19 +214,30 @@ async function handleConvertStart() {
     const url = urlInput.value.trim();
 
     let progress = 0;
+    // Smoother and more realistic simulation
     const progressInterval = setInterval(() => {
-      progress += Math.random() * 2;
-      if (progress > 90) progress = 90;
+      // Slower increment
+      if (progress < 30) {
+        progress += 1.5; // Fetching phase
+      } else if (progress < 60) {
+        progress += 0.4; // Downloading (usually slowest)
+      } else if (progress < 85) {
+        progress += 0.8; // Converting
+      } else if (progress < 95) {
+        progress += 0.2; // Metadata/Finalizing - stall at 95 until done
+      }
 
-      // Update steps based on progress simulation
-      if (progress < 20) {
+      if (progress > 95) progress = 95;
+
+      // Update terminal steps ensuring previous ones are marked done
+      if (progress < 25) {
         setStep("step-fetch", "active");
         updateTerminal(progress, "Fetching video info...");
-      } else if (progress < 50) {
+      } else if (progress < 55) {
         setStep("step-fetch", "done");
         setStep("step-download", "active");
         updateTerminal(progress, "Downloading audio stream...");
-      } else if (progress < 80) {
+      } else if (progress < 85) {
         setStep("step-download", "done");
         setStep("step-convert", "active");
         updateTerminal(progress, "Converting to MP3 (HQ)...");
@@ -224,7 +246,7 @@ async function handleConvertStart() {
         setStep("step-metadata", "active");
         updateTerminal(progress, "Embedding metadata...");
       }
-    }, 200);
+    }, 100);
 
     const validUrl =
       currentVideoInfo.webpage_url ||

@@ -7,6 +7,7 @@ const cors = require("cors");
 const path = require("path");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const morgan = require("morgan");
 
 const { PORT } = require("./src/config");
 const apiRoutes = require("./src/routes/api");
@@ -41,6 +42,9 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Logging
+app.use(morgan("dev"));
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
@@ -58,6 +62,17 @@ setInterval(() => {
     }
   });
 }, 5 * 60 * 1000);
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "404.html"));
+});
+
+// 500 Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).sendFile(path.join(__dirname, "500.html"));
+});
 
 // ========================================
 // Server Startup
