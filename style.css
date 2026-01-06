@@ -1414,6 +1414,172 @@ body {
 }
 
 /* ========================================
+   Terminal Progress Card
+======================================== */
+.progress-terminal {
+  margin-top: 24px;
+  background: #1e1e1e;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
+  position: relative;
+}
+
+.terminal-header {
+  background: #2d2d2d;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 6px;
+  margin-right: 16px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot.red {
+  background: #ff5f56;
+}
+.dot.yellow {
+  background: #ffbd2e;
+}
+.dot.green {
+  background: #27c93f;
+}
+
+.terminal-title {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0.7;
+}
+
+.terminal-body {
+  padding: 20px;
+  color: #e5e7eb;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.progress-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #6b7280;
+  transition: all 0.3s ease;
+}
+
+.step-item.active {
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+.step-item.done {
+  color: #34d399;
+}
+
+.step-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-item.waiting .step-icon::before {
+  content: "○";
+}
+.step-item.active .step-icon::before {
+  content: "⟳";
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+.step-item.done .step-icon::before {
+  content: "✓";
+  font-weight: bold;
+}
+
+.terminal-progress-wrapper {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.terminal-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: #374151;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.terminal-progress-fill {
+  height: 100%;
+  background: #34d399;
+  width: 0%;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+}
+
+.terminal-percent {
+  font-size: 0.85rem;
+  color: #34d399;
+  min-width: 40px;
+  font-weight: bold;
+  text-align: right;
+}
+
+.terminal-status-line {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.prompt {
+  color: #818cf8;
+  margin-right: 10px;
+}
+.cursor {
+  animation: blink 1s step-end infinite;
+  color: #34d399;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
    Utility Classes
 ======================================== */
 .hidden {

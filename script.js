@@ -204,24 +204,37 @@ async function handleConvertStart() {
 
     let progress = 0;
     const progressInterval = setInterval(() => {
-      if (progress < 85) {
-        progress += Math.random() * 8;
-        progress = Math.min(progress, 85);
-        const status = isTrimEnabled
-          ? "Converting & trimming audio..."
-          : "Converting to MP3...";
-        updateProgress(progress, status);
+      progress += Math.random() * 2;
+      if (progress > 90) progress = 90;
+
+      // Update steps based on progress simulation
+      if (progress < 20) {
+        setStep("step-fetch", "active");
+        updateTerminal(progress, "Fetching video info...");
+      } else if (progress < 50) {
+        setStep("step-fetch", "done");
+        setStep("step-download", "active");
+        updateTerminal(progress, "Downloading audio stream...");
+      } else if (progress < 80) {
+        setStep("step-download", "done");
+        setStep("step-convert", "active");
+        updateTerminal(progress, "Converting to MP3 (HQ)...");
+      } else {
+        setStep("step-convert", "done");
+        setStep("step-metadata", "active");
+        updateTerminal(progress, "Embedding metadata...");
       }
-    }, 800);
+    }, 200);
+
+    const validUrl =
+      currentVideoInfo.webpage_url ||
+      currentVideoInfo.original_url ||
+      urlInput.value.trim();
 
     const response = await fetch(`${API_BASE}/convert`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        url,
-        trimStart: trimStart || null,
-        trimEnd: trimEnd || null,
-      }),
+      body: JSON.stringify({ url: validUrl, trimStart, trimEnd }),
     });
 
     clearInterval(progressInterval);
@@ -232,18 +245,42 @@ async function handleConvertStart() {
       throw new Error(data.error || "Conversion failed");
     }
 
-    updateProgress(100, "Conversion complete!");
+    // Finish up
+    updateTerminal(100, "Conversion complete!");
+    setStep("step-metadata", "done");
+    setStep("step-fetch", "done");
+    setStep("step-download", "done");
+    setStep("step-convert", "done");
 
     currentConvertedData = data;
 
     setTimeout(() => {
       hideProgress();
       showAudioPreview(data);
-    }, 500);
+    }, 1000);
   } catch (err) {
     hideProgress();
     showError(err.message || "Conversion failed. Please try again.");
   }
+}
+
+// Terminal Helpers
+function updateTerminal(percent, status) {
+  const fill = document.getElementById("progress-fill");
+  const percentText = document.getElementById("progress-percent");
+  const statusText = document.getElementById("progress-status");
+
+  if (fill) fill.style.width = `${percent}%`;
+  if (percentText) percentText.textContent = `${Math.floor(percent)}%`;
+  if (statusText) statusText.textContent = status;
+}
+
+function setStep(stepId, status) {
+  const step = document.getElementById(stepId);
+  if (!step) return;
+
+  step.classList.remove("waiting", "active", "done");
+  step.classList.add(status);
 }
 
 function selectVersion(version) {

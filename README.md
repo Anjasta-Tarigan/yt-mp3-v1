@@ -168,4 +168,4 @@ This tool is intended for downloading content that you have the right to downloa
 
 ---
 
-Made with ❤️ by YT2MP3 Team
+Made with ❤️ by SLT Developer

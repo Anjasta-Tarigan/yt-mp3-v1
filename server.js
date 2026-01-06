@@ -11,6 +11,9 @@ const crypto = require("crypto");
 const { spawn, execSync } = require("child_process");
 const ytdl = require("@distube/ytdl-core");
 
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -53,6 +56,31 @@ function checkYtdlp() {
 const ytdlpAvailable = checkYtdlp();
 
 // Middleware
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "blob:", "https://i.ytimg.com"],
+        mediaSrc: ["'self'", "blob:"],
+        connectSrc: ["'self'"],
+      },
+    },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
+
+// Rate limiting: 100 requests per 15 minutes
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { error: "Too many requests from this IP, please try again later." },
+});
+app.use(limiter);
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));

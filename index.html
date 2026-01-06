@@ -453,17 +453,45 @@
             </div>
 
             <!-- Progress Bar -->
-            <div id="progress-container" class="progress-container hidden">
-              <div class="progress-header">
-                <span class="progress-label">Converting...</span>
-                <span id="progress-percent" class="progress-percent">0%</span>
+            <!-- Terminal Progress Card -->
+            <div id="progress-container" class="progress-terminal hidden">
+              <div class="terminal-header">
+                <div class="terminal-dots">
+                  <span class="dot red"></span>
+                  <span class="dot yellow"></span>
+                  <span class="dot green"></span>
+                </div>
+                <span class="terminal-title">conversion_process.exe</span>
               </div>
-              <div class="progress-bar">
-                <div id="progress-fill" class="progress-fill"></div>
+              <div class="terminal-body">
+                <div class="progress-steps">
+                  <div class="step-item waiting" id="step-fetch">
+                    <span class="step-icon"></span>
+                    <span class="step-text">Fetching video info...</span>
+                  </div>
+                  <div class="step-item waiting" id="step-download">
+                    <span class="step-icon"></span>
+                    <span class="step-text">Downloading audio stream...</span>
+                  </div>
+                  <div class="step-item waiting" id="step-convert">
+                    <span class="step-icon"></span>
+                    <span class="step-text">Converting to MP3 (HQ)...</span>
+                  </div>
+                  <div class="step-item waiting" id="step-metadata">
+                    <span class="step-icon"></span>
+                    <span class="step-text">Embedding metadata...</span>
+                  </div>
+                </div>
+                <div class="terminal-progress-wrapper">
+                  <div class="terminal-progress-bar">
+                    <div id="progress-fill" class="terminal-progress-fill"></div>
+                  </div>
+                  <span id="progress-percent" class="terminal-percent">0%</span>
+                </div>
+                <div class="terminal-status-line">
+                  <span class="prompt">></span> <span id="progress-status" class="typing-text">Initializing...</span><span class="cursor">_</span>
+                </div>
               </div>
-              <p class="progress-status" id="progress-status">
-                Preparing download...
-              </p>
             </div>
           </div>
         </div>
